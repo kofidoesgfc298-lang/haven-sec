@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Haven Sec</title>
+<style>
+:root{--bg:#0f172a;--panel:#111827;--panel2:#1f2937;--text:#e5e7eb;--muted:#94a3b8;--accent:#38bdf8;--danger:#ef4444;--ok:#22c55e}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b1220;color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{background:var(--panel);border:1px solid #263247;border-radius:16px;padding:28px;box-shadow:0 20px 50px #0006}
+.login .card{width:min(420px,100%);text-align:center}.logo{font-size:34px;font-weight:800;margin-bottom:8px;color:var(--accent)}
+input,select,textarea{width:100%;background:#0b1220;color:var(--text);border:1px solid #334155;border-radius:9px;padding:11px;margin:6px 0 12px}
+textarea{min-height:90px;resize:vertical}
+.btn{border:0;border-radius:9px;padding:10px 14px;background:var(--accent);color:#06111b;font-weight:700}
+.btn.secondary{background:#334155;color:var(--text)}.btn.danger{background:var(--danger);color:white}
+.error{color:#fca5a5;min-height:20px}.hidden{display:none!important}
+.app{min-height:100vh}.top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#0b1220;border-bottom:1px solid #263247;position:sticky;top:0;z-index:5}
+.brand{font-weight:800;font-size:22px;color:var(--accent)}.top small{color:var(--muted)}
+.nav{display:flex;gap:7px;overflow:auto;padding:10px 20px;background:#111827;border-bottom:1px solid #263247}
+.nav button{background:transparent;color:var(--muted);border:1px solid transparent;padding:9px 12px;border-radius:8px;white-space:nowrap}.nav button.active{background:#1e293b;color:white;border-color:#334155}
+main{max-width:1200px;margin:auto;padding:20px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:var(--panel);border:1px solid #263247;border-radius:13px;padding:18px}.stat b{font-size:28px;display:block}.stat span{color:var(--muted)}
+.section{background:var(--panel);border:1px solid #263247;border-radius:14px;padding:18px;margin-top:18px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:0 14px}.full{grid-column:1/-1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:10px;border-bottom:1px solid #263247;text-align:left;vertical-align:top}th{color:#94a3b8;font-size:13px}
+.scroll{overflow:auto}.empty{color:var(--muted);padding:20px;text-align:center}
+.badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#334155;font-size:12px}
+footer{color:var(--muted);text-align:center;padding:30px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media(max-width:500px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="card">
+    <div class="logo">HAVEN SEC</div>
+    <p>Night Security Log</p>
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="btn" onclick="login()">Sign in</button>
+    <div id="loginError" class="error"></div>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <header class="top"><div><div class="brand">HAVEN SEC</div><small>Security shift management</small></div>
+  <div><small id="clock"></small> <button class="btn secondary" onclick="logout()">Lock</button></div></header>
+  <nav class="nav">
+    <button class="active" data-page="dashboard">Dashboard</button>
+    <button data-page="incidents">Incidents</button>
+    <button data-page="lost">Lost Property</button>
+    <button data-page="alarms">Ramtech Alarms</button>
+    <button data-page="patrols">Patrols</button>
+    <button data-page="handover">Handover</button>
+    <button data-page="data">Data</button>
+  </nav>
+  <main id="content"></main>
+  <footer>Haven Sec • Keep real confidential information on approved company systems only.</footer>
+</div>
+
+<script>
+const PASSWORD="jonhaven";
+const KEY="havenSecDataV1";
+let db=JSON.parse(localStorage.getItem(KEY)||'{"incidents":[],"lost":[],"alarms":[],"patrols":[],"handover":""}');
+let currentPage="dashboard";
+
+function save(){localStorage.setItem(KEY,JSON.stringify(db)); render();}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function nowLocal(){const d=new Date();const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}
+function login(){if(document.getElementById("password").value===PASSWORD){sessionStorage.setItem("havenLogged","1");showApp()}else document.getElementById("loginError").textContent="Incorrect password."}
+function logout(){sessionStorage.removeItem("havenLogged");location.reload()}
+function showApp(){document.getElementById("login").classList.add("hidden");document.getElementById("app").classList.remove("hidden");render();}
+document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+if(sessionStorage.getItem("havenLogged")==="1")showApp();
+
+setInterval(()=>{const e=document.getElementById("clock");if(e)e.textContent=new Date().toLocaleString([], {dateStyle:"medium",timeStyle:"short"})},1000);
+
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{currentPage=b.dataset.page;document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()});
+
+function layout(title,body){return `<h1>${title}</h1>${body}`}
+function dashboard(){
+return layout("Tonight's Dashboard",`
+<div class="grid">
+<div class="stat"><b>${db.incidents.length}</b><span>Incidents</span></div>
+<div class="stat"><b>${db.lost.length}</b><span>Lost property</span></div>
+<div class="stat"><b>${db.alarms.length}</b><span>Ramtech alarms</span></div>
+<div class="stat"><b>${db.patrols.length}</b><span>Patrols logged</span></div>
+</div>
+<div class="section"><h2>Quick actions</h2><div class="actions">
+<button class="btn" onclick="go('incidents')">Log incident</button>
+<button class="btn" onclick="go('lost')">Log lost property</button>
+<button class="btn" onclick="go('alarms')">Log Ramtech alarm</button>
+<button class="btn" onclick="go('patrols')">Log patrol</button>
+</div></div>
+<div class="section"><h2>Recent activity</h2>${recent()}</div>`);
+}
+function go(p){currentPage=p;document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));render()}
+function recent(){
+let a=[...db.incidents.map(x=>({...x,_type:"Incident"})),...db.lost.map(x=>({...x,_type:"Lost property"})),...db.alarms.map(x=>({...x,_type:"Ramtech alarm"})),...db.patrols.map(x=>({...x,_type:"Patrol"}))].sort((a,b)=>String(b.time||"").localeCompare(String(a.time||""))).slice(0,8);
+if(!a.length)return `<div class="empty">No entries yet.</div>`;
+return `<div class="scroll"><table><tr><th>Type</th><th>Time</th><th>Location</th><th>Summary</th></tr>${a.map(x=>`<tr><td><span class="badge">${esc(x._type)}</span></td><td>${esc(x.time)}</td><td>${esc(x.location||"-")}</td><td>${esc(x.summary||x.description||x.item||x.result||"-")}</td></tr>`).join("")}</table></div>`;
+}
+function form(type){
+const configs={
+incidents:{title:"Incidents",fields:[["time","Date & time","datetime-local"],["location","Location","text"],["category","Category","select:Security|Medical|Fire|Theft|Trespass|Other"],["people","People involved / description","text"],["summary","Incident summary","textarea"],["action","Action taken","textarea"],["reported","Reported to","text"]]},
+lost:{title:"Lost Property",fields:[["time","Date & time","datetime-local"],["location","Found at","text"],["item","Item","text"],["description","Description","textarea"],["foundBy","Found by","text"],["stored","Stored / handed to","text"],["reference","Reference / bag number","text"]]},
+alarms:{title:"Ramtech Alarms",fields:[["time","Date & time","datetime-local"],["location","Alarm location","text"],["zone","Zone / device","text"],["type","Alarm type","select:Fire|Assistance|Call point|Other"],["summary","Details","textarea"],["action","Action taken","textarea"],["reset","Reset / handed over","text"]]},
+patrols:{title:"Patrols",fields:[["time","Date & time","datetime-local"],["location","Area / route","text"],["result","Result","select:All clear|Issue found|Unable to complete"],["checks","Checks completed","textarea"],["action","Action / follow-up","textarea"]]}
+}[type];
+let fields=configs.fields.map(([id,label,t])=>{let input=t.startsWith("select:")?`<select id="f_${id}">${t.slice(7).split("|").map(o=>`<option>${o}</option>`).join("")}</select>`:t==="textarea"?`<textarea id="f_${id}"></textarea>`:`<input id="f_${id}" type="${t}" ${id==="time"?'value="'+nowLocal()+'"':""}>`;return `<div class="${t==="textarea"?"full":""}"><label>${label}</label>${input}</div>`}).join("");
+return layout(configs.title,`<div class="section"><form onsubmit="addEntry(event,'${type}')"><div class="formgrid">${fields}</div><div class="actions"><button class="btn">Save entry</button><button type="reset" class="btn secondary">Clear</button></div></form></div>${table(type)}`);
+}
+function addEntry(e,type){e.preventDefault();let obj={id:crypto.randomUUID(),time:document.getElementById("f_time").value};document.querySelectorAll('[id^="f_"]').forEach(el=>{obj[el.id.slice(2)]=el.value});db[type].push(obj);save();alert("Entry saved.");}
+function table(type){
+let rows=db[type];
+if(!rows.length)return `<div class="section"><div class="empty">No entries logged.</div></div>`;
+let labels={incidents:"Incident",lost:"Item",alarms:"Alarm",patrols:"Patrol"};
+return `<div class="section"><div class="actions"><button class="btn secondary" onclick="exportCSV('${type}')">Export CSV</button></div><div class="scroll"><table><tr><th>Time</th><th>Location</th><th>Details</th><th>Action</th><th></th></tr>${rows.slice().reverse().map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.location||"-")}</td><td>${esc(x.summary||x.description||x.item||x.result||"-")}</td><td>${esc(x.action||x.stored||x.reset||"-")}</td><td><button class="btn danger" onclick="delEntry('${type}','${x.id}')">Delete</button></td></tr>`).join("")}</table></div></div>`;
+}
+function delEntry(type,id){if(confirm("Delete this entry?")){db[type]=db[type].filter(x=>x.id!==id);save()}}
+function handover(){return layout("Handover",`<div class="section"><p>Use this for a concise summary for the next officer.</p><textarea id="handoverText" style="min-height:300px">${esc(db.handover)}</textarea><button class="btn" onclick="db.handover=document.getElementById('handoverText').value;save();alert('Handover saved.')">Save handover</button></div>`)}
+function dataPage(){return layout("Data & Backup",`<div class="section"><p>Everything is stored locally in this browser on this device.</p><div class="actions"><button class="btn" onclick="backup()">Download backup</button><button class="btn secondary" onclick="document.getElementById('restore').click()">Restore backup</button><input id="restore" class="hidden" type="file" accept=".json" onchange="restore(this.files[0])"><button class="btn danger" onclick="wipe()">Delete all data</button></div><p><small>For real workplace use, only store information here if your employer permits it and the device/browser is approved.</small></p></div>`)}
+function backup(){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:"application/json"}));a.download="haven-sec-backup.json";a.click()}
+function restore(file){if(!file)return;let r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);save();alert("Backup restored.")}catch{alert("Invalid backup file.")}};r.readAsText(file)}
+function wipe(){if(confirm("Delete ALL Haven Sec data? This cannot be undone.")){db={incidents:[],lost:[],alarms:[],patrols:[],handover:""};save()}}
+function exportCSV(type){let rows=db[type];if(!rows.length)return alert("Nothing to export.");let keys=[...new Set(rows.flatMap(x=>Object.keys(x)))].filter(k=>k!=="id");let csv=[keys.join(","),...rows.map(x=>keys.map(k=>`"${String(x[k]??"").replace(/"/g,'""')}"`).join(","))].join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`haven-sec-${type}.csv`;a.click()}
+function render(){
+let c=document.getElementById("content");
+if(currentPage==="dashboard")c.innerHTML=dashboard();
+else if(["incidents","lost","alarms","patrols"].includes(currentPage))c.innerHTML=form(currentPage);
+else if(currentPage==="handover")c.innerHTML=handover();
+else c.innerHTML=dataPage();
+}
+function printReport(){window.print()}
+</script>
+</body>
+</html>
