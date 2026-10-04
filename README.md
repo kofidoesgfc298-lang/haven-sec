@@ -53,8 +53,11 @@
 <div id="reports" class="page"><div class="panel"><div class="panelhead"><h3>Reports & Export</h3></div><div class="notice">Export records your signed-in account can read as CSV files.</div><div class="actions" style="padding:0 17px 18px"><button class="action" data-export="incidents">Incidents CSV</button><button class="action" data-export="lost_property">Lost Property CSV</button><button class="action" data-export="ramtech_alarms">Alarms CSV</button><button class="action" data-export="patrols">Patrols CSV</button><button class="action" data-export="handover_notes">Handover CSV</button></div></div></div>
 
 </div></main></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-const URL='https://wjvlnkvufgiajhkyetih.supabase.co';
+ const URL='https://wjvlnkvufgiajhkyetih.supabase.co';
 const KEY='sb_publishable_nmS8qXIcyCpc6taGs9sKyA_6kw_uUKG';
 const db=window.supabase.createClient(URL,KEY);
 const names={incidents:'Incidents',lost_property:'Lost Property',ramtech_alarms:'Ramtech Alarms',patrols:'Patrols',handover_notes:'Handover Notes'};
