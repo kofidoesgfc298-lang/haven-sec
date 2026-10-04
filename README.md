@@ -148,7 +148,7 @@ async function loadIncidents(){
   `).join('');
 }
   async function rows(t){let {data,error}=await db.from(t).select('*').order('created_at',{ascending:false}).limit(100);if(error){console.error(error);return[]}return data||[]}
-async function refresh(){
+async function refresh(){loadIncidents();
  let [i,l,a,p,h]=await Promise.all(Object.keys(names).map(rows));cache={incidents:i,lost_property:l,ramtech_alarms:a,patrols:p,handover_notes:h};
  $('n1').textContent=i.length;$('n2').textContent=l.length;$('n3').textContent=a.length;$('n4').textContent=p.length;
  let all=[...i.map(x=>({t:'Incident',d:x[time.incidents]||x.created_at,l:x.location,s:x.status||'Open'})),...l.map(x=>({t:'Lost Property',d:x[time.lost_property]||x.created_at,l:x.location,s:x.status||'Stored'})),...a.map(x=>({t:'Ramtech Alarm',d:x[time.ramtech_alarms]||x.created_at,l:x.location,s:x.status||'Open'})),...p.map(x=>({t:'Patrol',d:x[time.patrols]||x.created_at,l:x.area,s:x.result||'Logged'})),...h.map(x=>({t:'Handover',d:x[time.handover_notes]||x.created_at,l:'—',s:x.priority||'Normal'}))].sort((x,y)=>new Date(y.d)-new Date(x.d));
