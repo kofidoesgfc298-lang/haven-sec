@@ -42,6 +42,18 @@
 <div id="incidents" class="page"><div class="panel"><div class="panelhead"><h3>Log Incident</h3><span class="muted">Shared online</span></div><form class="form" data-table="incidents"><div class="formgrid">
 <div><label>Incident time</label><input name="incident_time" type="datetime-local" required></div><div><label>Location</label><input name="location" required></div><div><label>Incident type</label><input name="incident_type" required placeholder="Theft, disorder, damage..."></div><div><label>Priority</label><select name="priority"><option>Normal</option><option>High</option><option>Critical</option></select></div><div class="full"><label>Description</label><textarea name="description" required></textarea></div><div class="full"><label>Action taken</label><textarea name="action_taken"></textarea></div></div><div class="formactions"><button type="button" class="cancel" data-open="dashboard">Cancel</button><button class="save">Save Incident</button></div></form></div></div>
 
+<div class="panel">
+  <div class="panelhead">
+    <h3>Incident Log</h3>
+    <span class="muted">Click an incident to view details</span>
+  </div>
+  <div id="incidentList" class="incident-list">
+    <div class="muted" style="padding:18px">Loading incidents...</div>
+  </div>
+</div>
+
+<div id="lost_property"
+
 <div id="lost_property" class="page"><div class="panel"><div class="panelhead"><h3>Log Lost Property</h3></div><form class="form" data-table="lost_property"><div class="formgrid"><div><label>Found time</label><input name="found_time" type="datetime-local" required></div><div><label>Location</label><input name="location" required></div><div><label>Item description</label><input name="item_description" required></div><div><label>Found by</label><input name="found_by"></div><div><label>Stored location</label><input name="stored_location"></div><div><label>Reference number</label><input name="reference_number"></div><div><label>Status</label><select name="status"><option>Stored</option><option>Returned</option><option>Disposed</option></select></div></div><div class="formactions"><button type="button" class="cancel" data-open="dashboard">Cancel</button><button class="save">Save Lost Property</button></div></form></div></div>
 
 <div id="ramtech_alarms" class="page"><div class="panel"><div class="panelhead"><h3>Log Ramtech Alarm</h3></div><form class="form" data-table="ramtech_alarms"><div class="formgrid"><div><label>Alarm time</label><input name="alarm_time" type="datetime-local" required></div><div><label>Location</label><input name="location" required></div><div><label>Alarm type</label><input name="alarm_type" required></div><div><label>Status</label><select name="status"><option>Open</option><option>Attended</option><option>Closed</option></select></div><div class="full"><label>Description</label><textarea name="description"></textarea></div><div class="full"><label>Action taken</label><textarea name="action_taken"></textarea></div></div><div class="formactions"><button type="button" class="cancel" data-open="dashboard">Cancel</button><button class="save">Save Alarm</button></div></form></div></div>
@@ -75,7 +87,46 @@ document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openPage(x.dat
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').classList.add('hidden');let {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('loginError').textContent=error.message;$('loginError').classList.remove('hidden')}};
 $('logout').onclick=()=>db.auth.signOut();
 
-document.querySelectorAll('form[data-table]').forEach(form=>form.onsubmit=async e=>{
+}
+
+function renderIncidents(){
+  const box=$('incidentList');
+  const data=cache.incidents||[];
+
+  if(!data.length){
+    box.innerHTML='<div class="muted" style="padding:18px">No incidents logged yet.</div>';
+    return;
+  }
+
+  box.innerHTML=data.map(x=>`
+    <div class="incident-row" data-id="${x.id}">
+      <div>
+        <b>${x.incident_type||'Incident'}</b>
+        <small>${x.location||'—'} · ${x.incident_time?new Date(x.incident_time).toLocaleString():new Date(x.created_at).toLocaleString()}</small>
+      </div>
+      <span>${x.priority||'Normal'}</span>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('.incident-row').forEach(row=>{
+    row.onclick=()=>{
+      const x=data.find(i=>i.id===row.dataset.id);
+      if(!x)return;
+
+      alert(
+        'INCIDENT DETAILS\\n\\n' +
+        'Type: '+(x.incident_type||'—')+'\\n' +
+        'Time: '+(x.incident_time?new Date(x.incident_time).toLocaleString():'—')+'\\n' +
+        'Location: '+(x.location||'—')+'\\n' +
+        'Priority: '+(x.priority||'Normal')+'\\n\\n' +
+        'Description:\\n'+(x.description||'—')+'\\n\\n' +
+        'Action Taken:\\n'+(x.action_taken||'—')
+      );
+    };
+  });
+}
+
+document.querySelectorAll('[data-export]')
  e.preventDefault();let row=Object.fromEntries(new FormData(form).entries());row.created_by=user.id;Object.keys(row).forEach(k=>{if(row[k]==='')row[k]=null});
  let {error}=await db.from(form.dataset.table).insert(row);if(error){msg(error.message,false);return}form.reset();defaults();msg(names[form.dataset.table]+' saved');openPage('dashboard');
 });
