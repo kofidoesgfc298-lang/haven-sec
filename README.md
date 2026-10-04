@@ -84,7 +84,45 @@ document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openPage(x.dat
 
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').classList.add('hidden');let {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('loginError').textContent=error.message;$('loginError').classList.remove('hidden')}};
 $('logout').onclick=()=>db.auth.signOut();
-  
+  async function loadIncidents(){
+  let {data,error}=await db.from('incidents').select('*').order('incident_time',{ascending:false});
+  if(error){
+    console.error('Incident load error:',error);
+    return;
+  }
+
+  let box=$('incidentList');
+  if(!box)return;
+
+  if(!data.length){
+    box.innerHTML='<div class="muted" style="padding:18px">No incidents yet.</div>';
+    return;
+  }
+
+  box.innerHTML=data.map(x=>`
+    <div class="incident-row" style="padding:14px;border-bottom:1px solid #333;cursor:pointer" data-id="${x.id}">
+      <b>${x.incident_type||'Incident'}</b><br>
+      <small>${x.location||'—'} · ${x.incident_time?new Date(x.incident_time).toLocaleString():'—'}</small>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('.incident-row').forEach(row=>{
+    row.onclick=()=>{
+      let x=data.find(i=>i.id===row.dataset.id);
+      if(!x)return;
+
+      alert(
+        'INCIDENT DETAILS\n\n'+
+        'Type: '+(x.incident_type||'—')+'\n'+
+        'Time: '+(x.incident_time?new Date(x.incident_time).toLocaleString():'—')+'\n'+
+        'Location: '+(x.location||'—')+'\n'+
+        'Priority: '+(x.priority||'Normal')+'\n\n'+
+        'Description:\n'+(x.description||'—')+'\n\n'+
+        'Action Taken:\n'+(x.action_taken||'—')
+      );
+    };
+  });
+}
 async function rows(t){let {data,error}=await db.from(t).select('*').order('created_at',{ascending:false}).limit(100);if(error){console.error(error);return[]}return data||[]}
 async function refresh(){
  let [i,l,a,p,h]=await Promise.all(Object.keys(names).map(rows));cache={incidents:i,lost_property:l,ramtech_alarms:a,patrols:p,handover_notes:h};
