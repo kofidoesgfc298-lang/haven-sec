@@ -50,14 +50,7 @@
   </div>
 </div>
 
-<div class="panel">
-  <div class="panelhead">
-    <h3>Incident Log</h3>
-    <span class="muted">Click an incident to view details</span>
-  </div>
-  
-
-<div id="lost_property"
+<
 
 <div id="lost_property" class="page"><div class="panel"><div class="panelhead"><h3>Log Lost Property</h3></div><form class="form" data-table="lost_property"><div class="formgrid"><div><label>Found time</label><input name="found_time" type="datetime-local" required></div><div><label>Location</label><input name="location" required></div><div><label>Item description</label><input name="item_description" required></div><div><label>Found by</label><input name="found_by"></div><div><label>Stored location</label><input name="stored_location"></div><div><label>Reference number</label><input name="reference_number"></div><div><label>Status</label><select name="status"><option>Stored</option><option>Returned</option><option>Disposed</option></select></div></div><div class="formactions"><button type="button" class="cancel" data-open="dashboard">Cancel</button><button class="save">Save Lost Property</button></div></form></div></div>
 
