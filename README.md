@@ -40,7 +40,15 @@
 <div class="grid"><div class="panel"><div class="panelhead"><h3>Recent Logs</h3><span class="muted">Newest first</span></div><div class="tablewrap"><table class="table"><thead><tr><th>Type</th><th>Time</th><th>Location</th><th>Status</th></tr></thead><tbody id="recent"></tbody></table></div></div><div class="panel"><div class="panelhead"><h3>Latest Activity</h3><span class="muted">Shared</span></div><div id="activity" class="activity"></div></div></div></section>
 
 <div id="incidents" class="page"><div class="panel"><div class="panelhead"><h3>Log Incident</h3><span class="muted">Shared online</span></div><form class="form" data-table="incidents"><div class="formgrid">
-<div><label>Incident time</label><input name="incident_time" type="datetime-local" required></div><div><label>Location</label><input name="location" required></div><div><label>Incident type</label><input name="incident_type" required placeholder="Theft, disorder, damage..."></div><div><label>Priority</label><select name="priority"><option>Normal</option><option>High</option><option>Critical</option></select></div><div class="full"><label>Description</label><textarea name="description" required></textarea></div><div class="full"><label>Action taken</label><textarea name="action_taken"></textarea></div></div><div class="formactions"><button type="button" class="cancel" data-open="dashboard">Cancel</button><button class="save">Save Incident</button></div></form></div></div>
+<div><label>Incident time</label><input name="incident_time" type="datetime-local" required></div><div><label>Location</label><input name="location" required></div><div><label>Incident type</label><input name="incident_type" required placeholder="Theft, disorder, damage..."></div><div><label>Priority</label><select name="priority"><option>Normal</option><option>High</option><option>Critical</option></select></div><div class="full"><label>Description</label><textarea name="description" required></textarea></div><div class="full"><label>Action taken</label><textarea name="action_taken"></textarea></div></div><div class="formactions"><button type="button" class="cancel" data-open="dashboard">Cancel</button><button class="save">Save Incident</button></div></form></div></div> <div class="panel">
+  <div class="panelhead">
+    <h3>Saved Incidents</h3>
+    <span class="muted">Click an incident to view details</span>
+  </div>
+  <div id="incidentList" class="incident-list">
+    <div class="muted" style="padding:18px">No incidents loaded yet.</div>
+  </div>
+</div>
 
 <div class="panel">
   <div class="panelhead">
