@@ -127,8 +127,6 @@ async function refresh(){
  $('recent').innerHTML=all.length?all.slice(0,10).map(x=>`<tr><td>${x.t}</td><td>${new Date(x.d).toLocaleString()}</td><td>${x.l||'—'}</td><td>${x.s||'—'}</td></tr>`).join(''):`<tr><td colspan="4">No logs yet.</td></tr>`;
  $('activity').innerHTML = 'Activity loaded';
 }
-$('activity').innerHTML = 'Activity loaded';
-}
 document.querySelectorAll('[data-export]').forEach(b=>b.onclick=async()=>{let t=b.dataset.export,r=cache[t]||await rows(t);if(!r.length){msg('No records to export',false);return}let c=[...new Set(r.flatMap(x=>Object.keys(x)))];let csv=[c.join(','),...r.map(x=>c.map(k=>`"${String(x[k]??'').replaceAll('"','""')}"`).join(','))].join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haven-sec-'+t+'.csv';a.click()});
 
 async function start(){let {data:{session}}=await db.auth.getSession();if(session?.user){user=session.user;show()}else{$('login').classList.remove('hidden');$('app').classList.add('hidden')}db.auth.onAuthStateChange((e,s)=>{if(s?.user){user=s.user;show()}else if(e==='SIGNED_OUT'){user=null;$('login').classList.remove('hidden');$('app').classList.add('hidden')}})}
