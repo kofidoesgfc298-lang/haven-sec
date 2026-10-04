@@ -132,7 +132,7 @@ async function refresh(){
  $('recent').innerHTML=all.length?all.slice(0,10).map(x=>`<tr><td>${x.t}</td><td>${new Date(x.d).toLocaleString()}</td><td>${x.l||'—'}</td><td>${x.s||'—'}</td></tr>`).join(''):`<tr><td colspan="4">No logs yet.</td></tr>`;
  $('activity').innerHTML = 'Activity loaded';
 }
-} · ${new Date(x.d).toLocaleString()}</small></div>`).join(''):'<div class="act">No activity yet.</div>';
+$('activity').innerHTML = 'Activity loaded';
 }
 document.querySelectorAll('[data-export]').forEach(b=>b.onclick=async()=>{let t=b.dataset.export,r=cache[t]||await rows(t);if(!r.length){msg('No records to export',false);return}let c=[...new Set(r.flatMap(x=>Object.keys(x)))];let csv=[c.join(','),...r.map(x=>c.map(k=>`"${String(x[k]??'').replaceAll('"','""')}"`).join(','))].join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haven-sec-'+t+'.csv';a.click()});
 
