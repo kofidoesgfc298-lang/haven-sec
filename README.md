@@ -123,7 +123,29 @@ $('logout').onclick=()=>db.auth.signOut();
     };
   });
 }
-async function rows(t){let {data,error}=await db.from(t).select('*').order('created_at',{ascending:false}).limit(100);if(error){console.error(error);return[]}return data||[]}
+async function loadIncidents(){
+  let {data,error}=await db.from('incidents').select('*').order('incident_time',{ascending:false});
+  if(error){
+    console.error('Incident load error:',error);
+    return;
+  }
+
+  let box=document.getElementById('incidentList');
+  if(!box)return;
+
+  if(!data.length){
+    box.innerHTML='<div class="muted" style="padding:18px">No incidents yet.</div>';
+    return;
+  }
+
+  box.innerHTML=data.map(x=>`
+    <div class="incident-row" style="padding:14px;border-bottom:1px solid #333;cursor:pointer">
+      <b>${x.incident_type||'Incident'}</b><br>
+      <small>${x.location||'—'} · ${x.incident_time?new Date(x.incident_time).toLocaleString():'—'}</small>
+    </div>
+  `).join('');
+}
+  async function rows(t){let {data,error}=await db.from(t).select('*').order('created_at',{ascending:false}).limit(100);if(error){console.error(error);return[]}return data||[]}
 async function refresh(){
  let [i,l,a,p,h]=await Promise.all(Object.keys(names).map(rows));cache={incidents:i,lost_property:l,ramtech_alarms:a,patrols:p,handover_notes:h};
  $('n1').textContent=i.length;$('n2').textContent=l.length;$('n3').textContent=a.length;$('n4').textContent=p.length;
