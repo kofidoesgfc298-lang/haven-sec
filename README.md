@@ -57,9 +57,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
- const URL='https://wjvlnkvufgiajhkyetih.supabase.co';
-const KEY='sb_publishable_nmS8qXIcyCpc6taGs9sKyA_6kw_uUKG';
-const db=window.supabase.createClient(URL,KEY);
+const SUPABASE_URL = 'https://wjvlnkvufgiajhkyetih.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_nmS8qXIcyCpc6taGs9sKyA_6kw_uUKG';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const names={incidents:'Incidents',lost_property:'Lost Property',ramtech_alarms:'Ramtech Alarms',patrols:'Patrols',handover_notes:'Handover Notes'};
 const time={incidents:'incident_time',lost_property:'found_time',ramtech_alarms:'alarm_time',patrols:'patrol_time',handover_notes:'note_time'};
 let user=null,cache={};
