@@ -89,14 +89,7 @@ $('logout').onclick=()=>db.auth.signOut();
 
 }
 
-function renderIncidents(){
-  const box=$('incidentList');
-  const data=cache.incidents||[];
 
-  if(!data.length){
-    box.innerHTML='<div class="muted" style="padding:18px">No incidents logged yet.</div>';
-    return;
-  }
 
   box.innerHTML=data.map(x=>`
     <div class="incident-row" data-id="${x.id}">
