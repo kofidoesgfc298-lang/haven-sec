@@ -86,39 +86,7 @@ document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openPage(x.dat
 
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').classList.add('hidden');let {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('loginError').textContent=error.message;$('loginError').classList.remove('hidden')}};
 $('logout').onclick=()=>db.auth.signOut();
-  box.innerHTML=data.map(x=>`
-    <div class="incident-row" data-id="${x.id}">
-      <div>
-        <b>${x.incident_type||'Incident'}</b>
-        <small>${x.location||'—'} · ${x.incident_time?new Date(x.incident_time).toLocaleString():new Date(x.created_at).toLocaleString()}</small>
-      </div>
-      <span>${x.priority||'Normal'}</span>
-    </div>
-  `).join('');
-
-  box.querySelectorAll('.incident-row').forEach(row=>{
-    row.onclick=()=>{
-      const x=data.find(i=>i.id===row.dataset.id);
-      if(!x)return;
-
-      alert(
-        'INCIDENT DETAILS\\n\\n' +
-        'Type: '+(x.incident_type||'—')+'\\n' +
-        'Time: '+(x.incident_time?new Date(x.incident_time).toLocaleString():'—')+'\\n' +
-        'Location: '+(x.location||'—')+'\\n' +
-        'Priority: '+(x.priority||'Normal')+'\\n\\n' +
-        'Description:\\n'+(x.description||'—')+'\\n\\n' +
-        'Action Taken:\\n'+(x.action_taken||'—')
-      );
-    };
-  });
-}
-
-document.querySelectorAll('[data-export]')
- e.preventDefault();let row=Object.fromEntries(new FormData(form).entries());row.created_by=user.id;Object.keys(row).forEach(k=>{if(row[k]==='')row[k]=null});
- let {error}=await db.from(form.dataset.table).insert(row);if(error){msg(error.message,false);return}form.reset();defaults();msg(names[form.dataset.table]+' saved');openPage('dashboard');
-});
-
+  
 async function rows(t){let {data,error}=await db.from(t).select('*').order('created_at',{ascending:false}).limit(100);if(error){console.error(error);return[]}return data||[]}
 async function refresh(){
  let [i,l,a,p,h]=await Promise.all(Object.keys(names).map(rows));cache={incidents:i,lost_property:l,ramtech_alarms:a,patrols:p,handover_notes:h};
