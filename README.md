@@ -130,7 +130,8 @@ async function refresh(){
  $('n1').textContent=i.length;$('n2').textContent=l.length;$('n3').textContent=a.length;$('n4').textContent=p.length;
  let all=[...i.map(x=>({t:'Incident',d:x[time.incidents]||x.created_at,l:x.location,s:x.status||'Open'})),...l.map(x=>({t:'Lost Property',d:x[time.lost_property]||x.created_at,l:x.location,s:x.status||'Stored'})),...a.map(x=>({t:'Ramtech Alarm',d:x[time.ramtech_alarms]||x.created_at,l:x.location,s:x.status||'Open'})),...p.map(x=>({t:'Patrol',d:x[time.patrols]||x.created_at,l:x.area,s:x.result||'Logged'})),...h.map(x=>({t:'Handover',d:x[time.handover_notes]||x.created_at,l:'—',s:x.priority||'Normal'}))].sort((x,y)=>new Date(y.d)-new Date(x.d));
  $('recent').innerHTML=all.length?all.slice(0,10).map(x=>`<tr><td>${x.t}</td><td>${new Date(x.d).toLocaleString()}</td><td>${x.l||'—'}</td><td>${x.s||'—'}</td></tr>`).join(''):`<tr><td colspan="4">No logs yet.</td></tr>`;
- $('activity').innerHTML=all.length?all.slice(0,8).map(x=>`<div class="act"><b>${x.t}</b><small>${x.l||'—'} · ${new Date(x.d).toLocaleString()}</small></div>`).join(''):'<div class="act">No activity yet.</div>';
+ $('activity').innerHTML = 'Activity loaded';
+}
 } · ${new Date(x.d).toLocaleString()}</small></div>`).join(''):'<div class="act">No activity yet.</div>';
 }
 document.querySelectorAll('[data-export]').forEach(b=>b.onclick=async()=>{let t=b.dataset.export,r=cache[t]||await rows(t);if(!r.length){msg('No records to export',false);return}let c=[...new Set(r.flatMap(x=>Object.keys(x)))];let csv=[c.join(','),...r.map(x=>c.map(k=>`"${String(x[k]??'').replaceAll('"','""')}"`).join(','))].join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haven-sec-'+t+'.csv';a.click()});
