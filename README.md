@@ -47,10 +47,7 @@
     <h3>Incident Log</h3>
     <span class="muted">Click an incident to view details</span>
   </div>
-  <div id="incidentList" class="incident-list">
-    <div class="muted" style="padding:18px">Loading incidents...</div>
-  </div>
-</div>
+  
 
 <div id="lost_property"
 
