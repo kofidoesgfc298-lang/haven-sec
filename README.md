@@ -86,11 +86,6 @@ document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openPage(x.dat
 
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').classList.add('hidden');let {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('loginError').textContent=error.message;$('loginError').classList.remove('hidden')}};
 $('logout').onclick=()=>db.auth.signOut();
-
-}
-
-
-
   box.innerHTML=data.map(x=>`
     <div class="incident-row" data-id="${x.id}">
       <div>
