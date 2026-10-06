@@ -189,27 +189,7 @@ return data||[];
   });
 }
 async function loadIncidents(){
-  let {data,error}=await db.from('incidents').select('*').order('incident_time',{ascending:false});
-  if(error){
-    console.error('Incident load error:',error);
-    return;
-  }
-
-  let box=document.getElementById('incidentList');
-  if(!box)return;
-
-  if(!data.length){
-    box.innerHTML='<div class="muted" style="padding:18px">No incidents yet.</div>';
-    return;
-  }
-
-  box.innerHTML=data.map(x=>`
-    <div class="incident-row" style="padding:14px;border-bottom:1px solid #333;cursor:pointer">
-      <b>${x.incident_type||'Incident'}</b><br>
-      <small>${x.location||'—'} · ${x.incident_time?new Date(x.incident_time).toLocaleString():'—'}</small>
-    </div>
-  `).join('');
-}
+  
   async function rows(t){
 }
 document.querySelectorAll('[data-export]').forEach(b=>b.onclick=async()=>{let t=b.dataset.export,r=cache[t]||await rows(t);if(!r.length){msg('No records to export',false);return}let c=[...new Set(r.flatMap(x=>Object.keys(x)))];let csv=[c.join(','),...r.map(x=>c.map(k=>`"${String(x[k]??'').replaceAll('"','""')}"`).join(','))].join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haven-sec-'+t+'.csv';a.click()});
