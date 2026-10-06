@@ -78,8 +78,7 @@ function localNow(){let d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOf
 function defaults(){document.querySelectorAll('input[type=datetime-local]').forEach(x=>{if(!x.value)x.value=localNow()})}
 function openPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(p).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('title').textContent=p==='dashboard'?'Dashboard':names[p]||p;defaults();scrollTo(0,0);if(p==='dashboard')refresh()}
   $('activity').innerHTML = 'Activity loaded';
-loadIncidents();
-function msg(t,good=true){let x=document.createElement('div');x.textContent=t;x.style='position:fixed;right:18px;bottom:18px;background:'+(good?'#123a2a':'#41191e')+';border:1px solid #345;padding:12px;border-radius:9px;z-index:99';document.body.appendChild(x);setTimeout(()=>x.remove(),3000)}
+function msg(t,good=true){let x=document.createElement('div');.textContent=t;x.style='position:fixed;right:18px;bottom:18px;background:'+(good?'#123a2a':'#41191e')+';border:1px solid #345;padding:12px;border-radius:9px;z-index:99';document.body.appendChild(x);setTimeout(()=>x.remove(),3000)}
 document.querySelectorAll('.nav button').forEach(x=>x.onclick=()=>openPage(x.dataset.page));
 document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openPage(x.dataset.open));
 
