@@ -86,27 +86,52 @@ document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openPage(x.dat
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').classList.add('hidden');let {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('loginError').textContent=error.message;$('loginError').classList.remove('hidden')}};
 $('logout').onclick=()=>db.auth.signOut();
   async function loadIncidents(){
-  let {data,error}=await db.from('incidents').select('*').order('incident_time',{ascending:false});
-  if(error){
-    console.error('Incident load error:',error);
-    return;
-  }
+let {data,error}=await db.from('incidents').select('*').order('incident_time',{ascending:false});
+if(error){
+console.error('Incident load error:',error);
+return;
+}
 
-  let box=document.getElementById('incidentList');
-  if(!box)return;
+let box=document.getElementById('incidentList');
+if(!box)return;
 
-  if(!data.length){
-    box.innerHTML='<div class="muted" style="padding:18px">No incidents yet.</div>';
-    return;
-  }
+if(!data.length){
+box.innerHTML='<div class="muted" style="padding:18px">No incidents yet.</div>';
+return;
+}
 
-  box.innerHTML=data.map(x=>`
-    <div class="incident-row" style="padding:14px;border-bottom:1px solid #333;cursor:pointer" data-id="${x.id}">
-      <b>${x.incident_type||'Incident'}</b><br>
-      <small>${x.location||'—'} · ${x.incident_time?new Date(x.incident_time).toLocaleString():'—'}</small>
-    </div>
+box.innerHTML=data.map(x=>`     <div class="incident-row" style="padding:14px;border-bottom:1px solid #333;cursor:pointer" data-id="${x.id}">       <b>${x.incident_type||'Incident'}</b><br>       <small>${x.location||'—'} · ${x.incident_time?new Date(x.incident_time).toLocaleString():'—'}</small>     </div>
   `).join('');
 
+box.querySelectorAll('.incident-row').forEach(row=>{
+row.onclick=()=>{
+let x=data.find(i=>i.id===row.dataset.id);
+if(!x)return;
+
+```
+  alert(
+    'INCIDENT DETAILS\n\n'+
+    'Type: '+(x.incident_type||'—')+'\n'+
+    'Time: '+(x.incident_time?new Date(x.incident_time).toLocaleString():'—')+'\n'+
+    'Location: '+(x.location||'—')+'\n'+
+    'Priority: '+(x.priority||'Normal')+'\n\n'+
+    'Description:\n'+(x.description||'—')+'\n\n'+
+    'Action Taken:\n'+(x.action_taken||'—')
+  );
+};
+```
+
+});
+}
+
+async function rows(t){
+let {data,error}=await db.from(t).select('*').order('created_at',{ascending:false}).limit(100);
+if(error){
+console.error(error);
+return [];
+}
+return data||[];
+}
   box.querySelectorAll('.incident-row').forEach(row=>{
   row.onclick=()=>{
     let x=data.find(i=>i.id===row.dataset.id);
@@ -186,13 +211,7 @@ async function loadIncidents(){
     </div>
   `).join('');
 }
-  async function rows(t){let {data,error}=await db.from(t).select('*').order('created_at',{ascending:false}).limit(100);if(error){console.error(error);return[]}return data||[]}
-async function refresh(){loadIncidents();
- let [i,l,a,p,h]=await Promise.all(Object.keys(names).map(rows));cache={incidents:i,lost_property:l,ramtech_alarms:a,patrols:p,handover_notes:h};
- $('n1').textContent=i.length;$('n2').textContent=l.length;$('n3').textContent=a.length;$('n4').textContent=p.length;
- let all=[...i.map(x=>({t:'Incident',d:x[time.incidents]||x.created_at,l:x.location,s:x.status||'Open'})),...l.map(x=>({t:'Lost Property',d:x[time.lost_property]||x.created_at,l:x.location,s:x.status||'Stored'})),...a.map(x=>({t:'Ramtech Alarm',d:x[time.ramtech_alarms]||x.created_at,l:x.location,s:x.status||'Open'})),...p.map(x=>({t:'Patrol',d:x[time.patrols]||x.created_at,l:x.area,s:x.result||'Logged'})),...h.map(x=>({t:'Handover',d:x[time.handover_notes]||x.created_at,l:'—',s:x.priority||'Normal'}))].sort((x,y)=>new Date(y.d)-new Date(x.d));
- $('recent').innerHTML=all.length?all.slice(0,10).map(x=>`<tr><td>${x.t}</td><td>${new Date(x.d).toLocaleString()}</td><td>${x.l||'—'}</td><td>${x.s||'—'}</td></tr>`).join(''):`<tr><td colspan="4">No logs yet.</td></tr>`;
- $('activity').innerHTML = 'Activity loaded';
+  async function rows(t){
 }
 document.querySelectorAll('[data-export]').forEach(b=>b.onclick=async()=>{let t=b.dataset.export,r=cache[t]||await rows(t);if(!r.length){msg('No records to export',false);return}let c=[...new Set(r.flatMap(x=>Object.keys(x)))];let csv=[c.join(','),...r.map(x=>c.map(k=>`"${String(x[k]??'').replaceAll('"','""')}"`).join(','))].join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='haven-sec-'+t+'.csv';a.click()});
 
